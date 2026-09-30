@@ -1,0 +1,92 @@
+import {
+	DetectOptions,
+	StartDetectOptions,
+	DetectResult,
+	Detect,
+	StartDetect,
+	StopDetect
+} from '../interface.uts'
+import { YoloFailImpl } from '../unierror'
+import { YoloDetector, DetectBridge } from 'uts.sdk.modules.uniYoloDetect'
+import { UTSAndroid } from 'io.dcloud.uts'
+
+function parseJson(json: string): DetectResult[] {
+	try {
+		const arr = JSON.parse<DetectResult[]>(json)
+		if (arr != null) {
+			return arr
+		}
+	} catch (e) {
+		console.error(e)
+	}
+	return []
+}
+
+export const detect: Detect = function (options: DetectOptions) {
+	const ctx = UTSAndroid.getAppContext()
+	if (ctx == null) {
+		options.fail?.(new YoloFailImpl(9010005))
+		return
+	}
+	const type = options.type ?? "detect"
+	if (!YoloDetector.isReady()) {
+		if (!YoloDetector.init(ctx)) {
+			options.fail?.(new YoloFailImpl(9010001))
+			return
+		}
+	}
+	if (!YoloDetector.isTypeReady(type)) {
+		options.fail?.(new YoloFailImpl(9010001))
+		return
+	}
+	const imagePath = options.imagePath
+	const imageBase64 = options.imageBase64
+	let json: string = "[]"
+	if (imagePath != null && imagePath.length > 0) {
+		json = YoloDetector.detectImagePath(imagePath, 0.25, type)
+	} else if (imageBase64 != null && imageBase64.length > 0) {
+		json = YoloDetector.detectImageBase64(imageBase64, 0.25, type)
+	} else {
+		options.fail?.(new YoloFailImpl(9010005))
+		return
+	}
+	options.success?.(parseJson(json))
+}
+
+export const startDetect: StartDetect = function (options: StartDetectOptions) {
+	const ctx = UTSAndroid.getAppContext()
+	if (ctx == null) {
+		options.fail?.(new YoloFailImpl(9010005))
+		return
+	}
+	const type = options.type ?? "detect"
+	if (!YoloDetector.isReady()) {
+		if (!YoloDetector.init(ctx)) {
+			options.fail?.(new YoloFailImpl(9010001))
+			return
+		}
+	}
+	if (!YoloDetector.isTypeReady(type)) {
+		options.fail?.(new YoloFailImpl(9010001))
+		return
+	}
+	const onResultCb = options.onResult
+	if (onResultCb != null) {
+		DetectBridge.onResult = function (json: string) {
+			onResultCb(parseJson(json))
+		}
+	} else {
+		DetectBridge.onResult = null
+	}
+	const threshold: number = options.threshold ?? 0.25
+	const ok = DetectBridge.launch(threshold, type)
+	if (ok) {
+		options.success?.()
+	} else {
+		options.fail?.(new YoloFailImpl(9010003))
+	}
+}
+
+export const stopDetect: StopDetect = function () {
+	DetectBridge.onResult = null
+}

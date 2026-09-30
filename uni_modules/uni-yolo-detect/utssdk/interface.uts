@@ -1,0 +1,79 @@
+/**
+ * YOLO 目标检测插件对外 API 声明
+ */
+
+/**
+ * 检测结果（单个检测框）
+ * 坐标为归一化坐标（0-1），相对整幅图像宽高
+ */
+export type DetectResult = {
+  /** 左上角 x（归一化 0-1） */
+  x: number,
+  /** 左上角 y（归一化 0-1） */
+  y: number,
+  /** 框宽度（归一化 0-1） */
+  width: number,
+  /** 框高度（归一化 0-1） */
+  height: number,
+  /** 置信度 0-1 */
+  score: number,
+  /** 类别索引 0-79（对应 COCO 80 类） */
+  classId: number,
+  /** 类别名称 */
+  className: string
+}
+
+/**
+ * 错误码
+ */
+export type YoloErrorCode = 9010001 | 9010002 | 9010003 | 9010004 | 9010005
+
+/**
+ * 错误回调参数
+ */
+export interface YoloFail extends IUniError {
+  errCode: YoloErrorCode
+}
+
+/**
+ * 单图检测入参
+ */
+export type DetectOptions = {
+  /** 本地图片路径（优先于 imageBase64） */
+  imagePath?: string,
+  /** base64 编码图片（不含 data URI 前缀） */
+  imageBase64?: string,
+  /** 检测类型："detect" 通用物体 / "face" 人脸，默认 "detect" */
+  type?: string,
+  success?: (res: DetectResult[]) => void,
+  fail?: (res: YoloFail) => void
+}
+
+/**
+ * 启动实时检测入参
+ */
+export type StartDetectOptions = {
+  /** 每帧检测结果回调（可选，不传则仅在原生层绘制） */
+  onResult?: (res: DetectResult[]) => void,
+  /** 置信度阈值（默认 0.25） */
+  threshold?: number,
+  /** 检测类型："detect" 通用物体 / "face" 人脸，默认 "detect" */
+  type?: string,
+  success?: () => void,
+  fail?: (res: YoloFail) => void
+}
+
+/**
+ * 单图检测
+ */
+export type Detect = (options: DetectOptions) => void
+
+/**
+ * 启动摄像头实时检测（打开原生全屏检测界面）
+ */
+export type StartDetect = (options: StartDetectOptions) => void
+
+/**
+ * 停止实时检测（关闭检测界面）
+ */
+export type StopDetect = () => void

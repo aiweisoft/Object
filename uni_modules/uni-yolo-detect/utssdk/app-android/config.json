@@ -1,0 +1,15 @@
+{
+	"abis": [
+		"arm64-v8a",
+		"armeabi-v7a"
+	],
+	"dependencies": [
+		"com.microsoft.onnxruntime:onnxruntime-android:1.29.0",
+		"androidx.camera:camera-camera2:1.4.2",
+		"androidx.camera:camera-lifecycle:1.4.2",
+		"androidx.camera:camera-view:1.4.2",
+		"androidx.activity:activity:1.9.3",
+		"androidx.core:core:1.13.1"
+	],
+	"minSdkVersion": 24
+}

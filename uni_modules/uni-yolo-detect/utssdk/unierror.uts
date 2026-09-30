@@ -1,0 +1,21 @@
+import { YoloErrorCode, YoloFail } from "./interface.uts"
+
+export const UniErrorSubject = 'uni-yolo-detect'
+
+export const YoloUniErrors: Map<YoloErrorCode, string> = new Map([
+  [9010001, '模型加载失败'],
+  [9010002, '图片解码失败'],
+  [9010003, '摄像头打开失败'],
+  [9010004, '推理失败'],
+  [9010005, '参数错误']
+])
+
+export class YoloFailImpl extends UniError implements YoloFail {
+  override errCode: YoloErrorCode
+  constructor(errCode: YoloErrorCode) {
+    super()
+    this.errSubject = UniErrorSubject
+    this.errCode = errCode
+    this.errMsg = YoloUniErrors.get(errCode) ?? ""
+  }
+}

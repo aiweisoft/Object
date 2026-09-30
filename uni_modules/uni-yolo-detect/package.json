@@ -1,0 +1,7 @@
+{
+  "id": "uni-yolo-detect",
+  "displayName": "YOLO目标检测",
+  "version": "0.1.0",
+  "description": "基于 ONNX Runtime 的 YOLOv8 本地离线目标检测插件，支持单图检测与摄像头实时检测（COCO 80 类）",
+  "uni_modules": {}
+}
